@@ -1,5 +1,6 @@
 import vertexai
 from vertexai.generative_models import GenerativeModel
+import sys
 
 def query_career_advisor(project_id: str, location: str, endpoint_id: str, prompt: str):
     """
@@ -12,16 +13,16 @@ def query_career_advisor(project_id: str, location: str, endpoint_id: str, promp
         prompt: The text prompt to send to the model.
     """
     try:
-        # Initialize the Vertex AI SDK
+        # Initialize the Vertex AI SDK. It's safe to call this multiple times.
+        # This is the corrected line, removing the incompatible 'initializer' check.
         print(f"Initializing Vertex AI for project '{project_id}' in '{location}'...")
         vertexai.init(project=project_id, location=location)
 
         # Load the generative model from the endpoint.
-        # This is the crucial step for a tuned Gemini model.
         print(f"Loading model from endpoint '{endpoint_id}'...")
         model = GenerativeModel(
-    model_name=f"projects/{project_id}/locations/{location}/endpoints/{endpoint_id}"
-)
+            model_name=f"projects/{project_id}/locations/{location}/endpoints/{endpoint_id}"
+        )
         # Send the prompt to the model to generate content.
         print(f"\nSending prompt: '{prompt}'")
         print("Waiting for response...")
@@ -50,6 +51,23 @@ if __name__ == '__main__':
     # This is the correct ENDPOINT_ID from your gcloud list command
     ENDPOINT_ID = "5411957860122755072"
 
-    example_prompt = "What are the most important skills for a software engineer in 2025?"
+    print("Welcome to the Career Advisor Bot! 🤖")
+    print("Type 'quit' or 'exit' to end the session.")
+    
+    # Loop to continuously get user input
+    while True:
+        # Get prompt from user input
+        user_prompt = input("\nPlease ask your career question: ")
 
-    query_career_advisor(PROJECT_ID, LOCATION, ENDPOINT_ID, example_prompt)
+        # Check if the user wants to quit
+        if user_prompt.lower() in ["quit", "exit"]:
+            print("Goodbye!")
+            break
+
+        # Check for empty input
+        if not user_prompt.strip():
+            print("Please enter a question.")
+            continue
+        
+        # Call the function with the user's prompt
+        query_career_advisor(PROJECT_ID, LOCATION, ENDPOINT_ID, user_prompt)
